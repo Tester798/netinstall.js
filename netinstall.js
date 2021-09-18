@@ -5,6 +5,7 @@ const fs = require('fs');
 
 
 const netinstall_only = false;
+const listen_on_interface_address = '192.168.88.2';
 const bootp_client_ip_address = '192.168.88.20';
 const dir_npk = `${__dirname}/npk`;
 const dir_key = `${__dirname}/key`;
@@ -290,13 +291,22 @@ function showNetInstallMenu() {
     console.log('\n Send npk file to device:');
     for (let mac in netinstall_devices) {
         const device = netinstall_devices[mac];
-        console.log(`     ${device.name} (${device.arch}):`);
+        console.log(`     ${device.name} (${device.arch}) ${mac}:`);
 
+        const npks = [];
         fs.readdirSync(dir_npk).forEach(file => {
             const npk = parseNpkFile(file);
             if (npk.arch !== device.arch) return;
-            console.log(`         ${choice_num}: ${npk.filename} | ${npk.ver} | ${npk.arch}`);
+            npks.push(npk);
+        });
 
+        if (npks.length === 0) {
+            console.log(`         No npk files found for the device`);
+            continue;
+        }
+
+        npks.forEach(npk => {
+            console.log(`         ${choice_num}: ${npk.filename} | ${npk.arch} | ${npk.ver} | ${npk.channel} | ${npk.name}`);
             choices[choice_num] = { func: netInstallStartSendNpkFile, params: [device, npk] };
             choice_num++;
         });
@@ -544,7 +554,7 @@ function main() {
 
 setTimeout(function checkNI() {
     const ni = os.networkInterfaces();
-    const network_int = Object.keys(ni).map(interf => ni[interf].map(o => !o.internal && o.family === 'IPv4' && [o.address, o.mac])).reduce((a, b) => a.concat(b));
+    const network_int = Object.keys(ni).map(interf => ni[interf].map(o => !o.internal && o.family === 'IPv4' && o.address === listen_on_interface_address && [o.address, o.mac])).reduce((a, b) => a.concat(b)).filter(el => el !== false);
     if (!network_int[0]) {
         logtext_r('Waiting for network interface...');
         setTimeout(checkNI, 1000);
