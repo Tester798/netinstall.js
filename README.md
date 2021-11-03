@@ -1,7 +1,7 @@
 # netinstall.js
 MikroTik Netinstall in JS
 
-![NetInstall Bug](https://raw.githubusercontent.com/Tester798/netinstall.js/master/.readme/bug.gif)
+![NetInstall Bug](https://raw.githubusercontent.com/Tester798/netinstall.js/master/.readme/bug.webp)
 
 If you encounter bug displayed on the video above then you may find this repository helpful.
 
